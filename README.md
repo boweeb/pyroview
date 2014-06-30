@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # This is my README
 
 =====
@@ -14,4 +13,3 @@ pyroview
 ========
 
 Easy CLI interface for rdesktop.
->>>>>>> 98d2ecaad03cd3ca8d0c94aa46bc57972ef49b4e
