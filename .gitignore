@@ -1,0 +1,9 @@
+*.pyc
+nohup.out
+*.pyo
+*.tmp*
+.directory
+test.db
+__pycache__
+*.json
+*.bak
