@@ -69,7 +69,9 @@ import time
 def main():
 
     global options, args
-    # TODO: Do something more interesting here...
+    import pyroview
+    from pyroview import data
+
     print('Hello world!')
 
 if __name__ == '__main__':
@@ -86,9 +88,7 @@ if __name__ == '__main__':
         main()
         if options.verbose:
             print(time.asctime())
-        if options.verbose:
             print('TOTAL TIME IN MINUTES:',)
-        if options.verbose:
             print((time.time() - start_time) / 60.0)
         sys.exit(0)
     except KeyboardInterrupt as e:
