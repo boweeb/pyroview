@@ -29,11 +29,10 @@ class User(DB_Base):
     """
     __tablename__ = "user"
 
-    id = Column(Integer, primary_key=True)
-    user = Column(String, nullable=False)
+    user = Column(String, primary_key=True)
     password = Column(String, nullable=False)
     name = Column(String, nullable=False)
-    hostname = Column(String, nullable=False)
+    hostname = Column(String)
     active = Column(Boolean, default=True, nullable=False)
 
 
@@ -44,7 +43,7 @@ class Parameter(DB_Base):
 
     id = Column(Integer, primary_key=True)
     parameter = Column(String, nullable=False)
-    value = Column(String, nullable=False)
+    value = Column(String)
     description = Column(String, nullable=False)
     active = Column(Boolean, default=True, nullable=False)
 

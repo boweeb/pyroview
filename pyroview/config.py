@@ -7,11 +7,16 @@ Created on Jul 07, 2014
 @author: Jesse Butcher
 
 """
+import argparse
+import logging
 
 import configparser
 import os
 
 from pyroview.utils import dir_check
+
+from pyroview.logging import L
+logging.basicConfig(level=L.level)
 
 
 def safe_init(caller, parser, global_var, section, option):
@@ -26,7 +31,7 @@ def safe_init(caller, parser, global_var, section, option):
                 parser.add_section(section)
             setattr(caller, global_var, parser.get(section, option))
         except configparser.NoOptionError as e:
-            print("Encountered an un-configured option. {}".format(e))
+            logging.error("Encountered an un-configured option. {}".format(e))
             parser.set(section, option, "Fill me.")
             continue
         break
@@ -35,15 +40,14 @@ def safe_init(caller, parser, global_var, section, option):
 def safe_init_dict_wrapper(caller, parser, option_array):
     """ High level option loader that parses a dictionary of options """
     o = option_array
-    print("Parsing {} option section(s): {}... ".format(len(o),
-                                                        o.keys()), end="")
+    logging.debug("Parsing {} option section(s): {}... ".format(len(o), o.keys()))
     for s in o.keys():
         if o[s]['type'] == 'database':
             section = 'database'
             for field in o[s]['fields']:
                 global_var = field
                 safe_init(caller, parser, global_var, section, field)
-    print("Done.")
+    logging.debug("Done.")
 
 
 class DatabaseConnection():
@@ -56,7 +60,7 @@ class DatabaseConnection():
         self.config = configparser.ConfigParser()
 
         if not os.path.exists(self.config_file):
-            print("Config file missing. Initializing new, blank one.")
+            logging.warning("Config file missing. Initializing new, blank one.")
             with open(self.config_file, "w") as fp:
                 fp.write("[database]\n" +
                          "host = \n" +
@@ -82,3 +86,19 @@ class DatabaseConnection():
             }
         }
         safe_init_dict_wrapper(self, self.config, option_array)
+
+
+def get_cli_args():
+        parser = argparse.ArgumentParser(description="Description x"
+                                         , usage=globals()['__doc__']
+                                         )
+        parser.add_argument('-U', '--user', help='Username')
+        parser.add_argument('-H', '--host', help='Hostname')
+        parser.add_argument('-P', '--password', help='Password')
+        parser.add_argument('-A', '--admin', help='Administrator mode', action='store_true', default=False)
+        parser.add_argument('-D', '--display', help='Geometry of display')
+        parser.add_argument('-T', '--title', help='Window title prefix')
+        parser.add_argument('-d', '--debug', help='Dry run and display rdesktop command')
+        args = parser.parse_args()
+
+        return args

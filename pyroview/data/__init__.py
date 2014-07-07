@@ -8,11 +8,16 @@ Created on Jul 07, 2014
 
 """
 
+import logging
+
 from sqlalchemy import create_engine, exc
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
 from pyroview import DB
+from pyroview.logging import L
+
+logging.basicConfig(level=L.level)
 
 
 # Global session registry:
@@ -40,7 +45,7 @@ def init_engine():
     """
     if DB.password != "":
         try:
-            print("Initializing... ", end="")
+            logging.debug("Initializing... ")
             cx_str = ('postgresql+psycopg2://' + DB.user +
                       ':' + DB.password +
                       '@' + DB.host +
@@ -50,28 +55,28 @@ def init_engine():
                       )
             # print(cx_str)
             engine = create_engine(cx_str
-                                   , echo=True
+                                   # , echo=True
                                    )
             # Session.configure(binds={Configuration: engine,
             #                          User: engine})
             db_metadata.bind = engine
             db_metadata.create_all()
-            print("Success")
+            logging.debug("Success")
             return engine
 
         except exc.SQLAlchemyError as e:
-            print("SQLAlchemyError:: %s:" % e.args[0])
+            logging.error("SQLAlchemyError:: %s:" % e.args[0])
             return False
         except NameError as e:
-            print("NameError: {}".format(e))
+            logging.error("NameError: {}".format(e))
             return False
         except ValueError as e:
-            print("There's something wrong with the database" +
-                  " configuration. Likely the 'port' setting is wrong. {}".format(e))
+            logging.error("There's something wrong with the database" +
+                          " configuration. Likely the 'port' setting is wrong. {}".format(e))
             return False
 
     else:
-        print("The password cannot be blank.")
+        logging.error("The password cannot be blank.")
         return False
 
 #############################################################################
@@ -80,6 +85,6 @@ def init_engine():
 DB.ready = init_engine()
 
 if DB.ready:
-    print("Engine ready")
+    logging.debug("Engine ready")
 else:
-    print("Engine NOT ready.")
+    logging.debug("Engine NOT ready.")

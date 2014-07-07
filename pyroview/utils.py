@@ -9,18 +9,23 @@ Created on Jul 07, 2014
 """
 
 import os
+import logging
+
+from pyroview.logging import L
+
+logging.basicConfig(level=L.level)
 
 
 def dir_check(directory):
     """ Check if directory exists, if not then create it. """
     # http://stackoverflow.com/questions/273192/...
     #   python-best-way-to-create-directory-if-it-doesnt-exist-for-file-write
-    
-    print("Checking \"{}\" exists... ".format(directory), end="")
-    try: 
+
+    logging.debug("Checking \"{}\" exists... ".format(directory))
+    try:
         os.makedirs(directory)
-        print("False. Created directory.")
+        logging.warning("Configuration directory created.")
     except OSError:
         if not os.path.isdir(directory):
             raise
-        print("True. Directory exists.")
+        logging.debug("Configuration directory exists.")

@@ -27,7 +27,7 @@ EXIT STATUS
 
 AUTHOR
 
-    TODO: Name <name@example.org>
+    Jesse Butcher <boweeb@gmail.com>
 
 LICENSE
 
@@ -55,41 +55,41 @@ LICENSE
 
 VERSION
 
-    $Id$
+    0.5
 
 """
 
 import sys
-# import os
 import traceback
-import optparse
-import time
+import logging
+from pyroview.config import get_cli_args
+from pyroview.logging import L
 
 
-def main():
+logging.basicConfig(level=L.level)
 
-    global options, args
-    import pyroview
+
+def main(args):
+    """
+    :param args:
+    :return:
+    """
+
+    # import pyroview
     from pyroview import data
 
-    print('Hello world!')
+    logging.debug('<<<Main>>>')
 
 if __name__ == '__main__':
     try:
-        start_time = time.time()
-        parser = optparse.OptionParser(formatter=optparse.TitledHelpFormatter(),
-                                       usage=globals()['__doc__'], version='$Id$')
-        parser.add_option('-v', '--verbose', action='store_true', default=False, help='verbose output')
-        (options, args) = parser.parse_args()
-        #if len(args) < 1:
-        #    parser.error ('missing argument')
-        if options.verbose:
-            print(time.asctime())
-        main()
-        if options.verbose:
-            print(time.asctime())
-            print('TOTAL TIME IN MINUTES:',)
-            print((time.time() - start_time) / 60.0)
+        # parser = optparse.OptionParser(formatter=optparse.TitledHelpFormatter(),
+        #                                usage=globals()['__doc__'], version='0.5')
+        # parser.add_option('-v', '--verbose', action='store_true', default=False, help='verbose output')
+
+        ARGS = get_cli_args()
+        logging.debug('CLI Arguments: {}'.format(ARGS))
+        main(ARGS)
+
         sys.exit(0)
     except KeyboardInterrupt as e:
         # Ctrl-C
@@ -98,7 +98,7 @@ if __name__ == '__main__':
         # sys.exit()
         raise e
     except Exception as e:
-        print('ERROR, UNEXPECTED EXCEPTION')
-        print(str(e))
+        logging.error('ERROR, UNEXPECTED EXCEPTION')
+        logging.error(str(e))
         traceback.print_exc()
         sys.exit(1)

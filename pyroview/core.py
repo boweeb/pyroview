@@ -8,7 +8,11 @@ Created on Jul 07, 2014
 
 """
 
-from pyroview.config import DatabaseConnection
+import os
+import logging
+
+from pyroview.logging import L
+
+logging.basicConfig(level=L.level)
 
 
-DB = DatabaseConnection()
