@@ -62,34 +62,39 @@ VERSION
 import sys
 import traceback
 import logging
-from pyroview.config import get_cli_args
+import subprocess
+
 from pyroview.logging import L
+from pyroview.core import create_cmd
+from pyroview.utils import get_cli_args
 
 
 logging.basicConfig(level=L.level)
 
 
-def main(args):
-    """
-    :param args:
-    :return:
+def main():
+    """ Main thread
     """
 
-    # import pyroview
-    from pyroview import data
-
+    args = get_cli_args()
+    logging.debug('CLI Arguments: {}'.format(args))
     logging.debug('<<<Main>>>')
+
+    cmd = create_cmd(args)
+    if cmd is not False:
+        if args['debug']:
+            one_liner = ' '.join(cmd)
+            print(one_liner)
+        else:
+            process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+            process.wait()
+            for line in process.stdout:
+                print(line)
+
 
 if __name__ == '__main__':
     try:
-        # parser = optparse.OptionParser(formatter=optparse.TitledHelpFormatter(),
-        #                                usage=globals()['__doc__'], version='0.5')
-        # parser.add_option('-v', '--verbose', action='store_true', default=False, help='verbose output')
-
-        ARGS = get_cli_args()
-        logging.debug('CLI Arguments: {}'.format(ARGS))
-        main(ARGS)
-
+        main()
         sys.exit(0)
     except KeyboardInterrupt as e:
         # Ctrl-C

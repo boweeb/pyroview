@@ -13,6 +13,8 @@ from sqlalchemy.types import Integer, String, Boolean
 
 from pyroview.data import DB_Base
 
+__all__ = ['Configuration', 'User', 'Parameter', 'Geometry']
+
 
 class Configuration(DB_Base):
     """ Configuration model

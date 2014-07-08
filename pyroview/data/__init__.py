@@ -33,8 +33,7 @@ DB_Base = declarative_base()
 db_metadata = DB_Base.metadata
 
 # Import models.
-from pyroview.data.models import Configuration
-from pyroview.data.models import User
+from pyroview.data.models import *
 
 
 #############################################################################

@@ -14,6 +14,7 @@ import logging
 class LoggingSettings():
     def __init__(self):
         self.level = logging.DEBUG
+        # self.level = logging.INFO
 
 
 L = LoggingSettings()

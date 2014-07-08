@@ -7,14 +7,11 @@ Created on Jul 07, 2014
 @author: Jesse Butcher
 
 """
-import argparse
 import logging
-
 import configparser
 import os
 
 from pyroview.utils import dir_check
-
 from pyroview.logging import L
 logging.basicConfig(level=L.level)
 
@@ -86,19 +83,3 @@ class DatabaseConnection():
             }
         }
         safe_init_dict_wrapper(self, self.config, option_array)
-
-
-def get_cli_args():
-        parser = argparse.ArgumentParser(description="Description x"
-                                         , usage=globals()['__doc__']
-                                         )
-        parser.add_argument('-U', '--user', help='Username')
-        parser.add_argument('-H', '--host', help='Hostname')
-        parser.add_argument('-P', '--password', help='Password')
-        parser.add_argument('-A', '--admin', help='Administrator mode', action='store_true', default=False)
-        parser.add_argument('-D', '--display', help='Geometry of display')
-        parser.add_argument('-T', '--title', help='Window title prefix')
-        parser.add_argument('-d', '--debug', help='Dry run and display rdesktop command')
-        args = parser.parse_args()
-
-        return args

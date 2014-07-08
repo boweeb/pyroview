@@ -20,3 +20,4 @@ src_less/style.css
 src_less/style.min.css
 test.db
 zentus-sqlite-license.txt
+user.sql

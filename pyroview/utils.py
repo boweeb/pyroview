@@ -7,6 +7,7 @@ Created on Jul 07, 2014
 @author: Jesse Butcher
 
 """
+import argparse
 
 import os
 import logging
@@ -29,3 +30,27 @@ def dir_check(directory):
         if not os.path.isdir(directory):
             raise
         logging.debug("Configuration directory exists.")
+
+
+def get_cli_args():
+    """
+
+    :return:
+    """
+    # parser = optparse.OptionParser(formatter=optparse.TitledHelpFormatter(),
+    #                                usage=globals()['__doc__'], version='0.5')
+    # parser.add_option('-v', '--verbose', action='store_true', default=False, help='verbose output')
+
+    parser = argparse.ArgumentParser(description="Description x"
+                                     , usage=globals()['__doc__']
+                                     )
+    parser.add_argument('-U', '--user', help='Username')
+    parser.add_argument('-H', '--host', help='Hostname')
+    parser.add_argument('-P', '--password', help='Password')
+    parser.add_argument('-A', '--admin', help='Administrator mode', action='store_true', default=False)
+    parser.add_argument('-D', '--display', help='Geometry of display')
+    parser.add_argument('-T', '--title', help='Window title prefix')
+    parser.add_argument('-d', '--debug', help='Dry run and display rdesktop command', action='store_true', default=False)
+    args = vars(parser.parse_args())
+
+    return args
