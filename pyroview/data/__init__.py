@@ -42,41 +42,51 @@ from pyroview.data.models import *
 def init_engine():
     """
     """
-    if DB.password != "":
-        try:
-            logging.debug("Initializing... ")
-            cx_str = ('postgresql+psycopg2://' + DB.user +
-                      ':' + DB.password +
-                      '@' + DB.host +
-                      ':' + DB.port +
-                      '/' + DB.db_name
+    try:
+        logging.debug("Initializing... ")
+        cx_str = ''
+        if DB.c_engine == 'postgresql':
+            cx_str = ('postgresql+psycopg2://' + DB.p_user +
+                      ':' + DB.p_password +
+                      '@' + DB.p_host +
+                      ':' + DB.p_port +
+                      '/' + DB.p_db_name
+                      )
+        elif DB.c_engine == 'mysql':
+            cx_str = ('mysql://' + DB.m_user +
+                      ':' + DB.m_password +
+                      '@' + DB.m_host +
+                      ':' + DB.m_port +
+                      '/' + DB.m_schema
                       # + '?charset=utf8'
                       )
-            # print(cx_str)
-            engine = create_engine(cx_str
-                                   # , echo=True
-                                   )
-            # Session.configure(binds={Configuration: engine,
-            #                          User: engine})
-            db_metadata.bind = engine
-            db_metadata.create_all()
-            logging.debug("Success")
-            return engine
+        elif DB.c_engine == 'sqlite':
+            cx_str = 'sqlite+pysqlite:///' + DB.s_path
+        else:
+            pass
+        logging.debug('[[ CX_STR ]]: {}'.format(cx_str))
 
-        except exc.SQLAlchemyError as e:
-            logging.error("SQLAlchemyError:: %s:" % e.args[0])
-            return False
-        except NameError as e:
-            logging.error("NameError: {}".format(e))
-            return False
-        except ValueError as e:
-            logging.error("There's something wrong with the database" +
-                          " configuration. Likely the 'port' setting is wrong. {}".format(e))
-            return False
+        engine = create_engine(cx_str
+                               # , echo=True
+                               )
+        # Session.configure(binds={Configuration: engine,
+        #                          User: engine})
+        db_metadata.bind = engine
+        db_metadata.create_all()
+        logging.debug("Success")
+        return engine
 
-    else:
-        logging.error("The password cannot be blank.")
+    except exc.SQLAlchemyError as e:
+        logging.error("SQLAlchemyError:: %s:" % e.args[0])
         return False
+    except NameError as e:
+        logging.error("NameError: {}".format(e))
+        return False
+    except ValueError as e:
+        logging.error("There's something wrong with the database" +
+                      " configuration. Likely the 'port' setting is wrong. {}".format(e))
+        return False
+
 
 #############################################################################
 # Set global status of the engine being ready.

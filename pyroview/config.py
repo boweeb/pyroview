@@ -37,48 +37,87 @@ def safe_init(caller, parser, global_var, section, option):
 def safe_init_dict_wrapper(caller, parser, option_array):
     """ High level option loader that parses a dictionary of options """
     o = option_array
-    logging.debug("Parsing {} option section(s): {}... ".format(len(o), o.keys()))
+    print("Parsing {} option section(s): {}... ".format(len(o), o.keys()))
     for s in o.keys():
-        if o[s]['type'] == 'database':
-            section = 'database'
-            for field in o[s]['fields']:
-                global_var = field
-                safe_init(caller, parser, global_var, section, field)
-    logging.debug("Done.")
+        abr = o[s]['abr']
+        # section = 'db_' + abr
+        # section = abr
+        section = s
+        for field in o[s]['fields']:
+            global_var = abr + '_' + field
+            safe_init(caller, parser, global_var, section, field)
+    print("Done.")
 
 
 class DatabaseConnection():
     def __init__(self):
-        self.app_dir = os.path.join(os.path.expanduser("~"), ".pyroview")
+        self.app_dir = os.path.join(os.path.expanduser('~'), '.config', 'pyroview')
         dir_check(self.app_dir)
 
-        self.config_file = os.path.join(self.app_dir, "database_connection.cfg")
+        self.config_file = os.path.join(self.app_dir, 'database.ini')
 
         self.config = configparser.ConfigParser()
 
         if not os.path.exists(self.config_file):
             logging.warning("Config file missing. Initializing new, blank one.")
             with open(self.config_file, "w") as fp:
-                fp.write("[database]\n" +
-                         "host = \n" +
-                         "user = \n" +
-                         "password = \n" +
-                         "port = \n" +
-                         "db_name = \n")
+                fp.write("[configuration]\n" +
+                         "#engine = postgresql\n" +
+                         "#engine = mysql\n" +
+                         "engine = sqlite\n" +
+                         "\n" +
+                         "[postgresql]\n" +
+                         "host = localhost\n" +
+                         "user = pyroview\n" +
+                         "password = xxxxx\n" +
+                         "port = 5432\n" +
+                         "db_name = pyroview\n" +
+                         "\n" +
+                         "[mysql]\n" +
+                         "host = localhost\n" +
+                         "user = pyroview\n" +
+                         "password = xxxxx\n" +
+                         "port = 3306\n" +
+                         "schema = pyroview\n" +
+                         "\n" +
+                         "[sqlite]\n" +
+                         "path = local.db\n")
 
         self.config.read(self.config_file)
 
         self.ready = False
 
         option_array = {
-            'DB': {
-                'type': 'database',
+            'configuration': {
+                'abr': 'c',
+                'fields': (
+                    'engine',
+                )
+            },
+            'postgresql': {
+                'abr': 'p',
                 'fields': (
                     'host',
                     'user',
                     'password',
                     'port',
                     'db_name'
+                )
+            },
+            'mysql': {
+                'abr': 'm',
+                'fields': (
+                    'host',
+                    'user',
+                    'password',
+                    'port',
+                    'schema'
+                )
+            },
+            'sqlite': {
+                'abr': 's',
+                'fields': (
+                    'path',
                 )
             }
         }

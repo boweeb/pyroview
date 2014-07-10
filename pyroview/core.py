@@ -9,6 +9,7 @@ Created on Jul 07, 2014
 """
 
 import logging
+import shlex
 
 from pyroview import DB
 from pyroview import data as d
@@ -33,7 +34,6 @@ def get_config(session, args):
     total_keys = args_keys | defaults_keys
     logging.debug("[[ TOTAL_KEYS ]]: {}".format(total_keys))
     config_dict = dict.fromkeys(total_keys)
-    logging.debug("[[ CONFIG_DICT ]]: {}".format(config_dict))
     for key in total_keys:
         if (key in args.keys()) and (args[key] is not None):
             config_dict[key] = args[key]
@@ -53,8 +53,10 @@ def get_config(session, args):
         config_list.append(config_dict['host'])
     if config_dict['title'] is not None:
         config_list.extend(['-T', "\"{} {}\"".format(config_dict['title'], config_dict['host'])])
-    if config_dict['admin'] is not None:
-        if config_dict['admin']:
+    if config_dict['user'] is not None:
+        config_list.extend(['-u', config_dict['user']])
+    if config_dict['no_admin'] is not None:
+        if not config_dict['no_admin']:
             config_list.append('-0')
 
     logging.debug("[[ CONFIG_LIST ]]: {}".format(config_list))
@@ -96,22 +98,28 @@ def get_geometry(session, config_dict):
     return cmd_list
 
 
-def get_user(session, config_dict):
+def get_user(session, config_dict, method):
     """
 
     :param session:
     :param config_dict:
     :return:
     """
-    # Get user information
-    qry__ = session.query(d.User)
-    qry_u = qry__.filter(d.User.user == 'administrator')
-    if qry_u.count() == 1:
-        logging.debug("[[ QRY_U.STATEMENT ]]: {}".format(qry_u.statement))
-        user = qry_u.first()
 
-    user = []
-    return user
+    result = None
+    qry = session.query(d.User).order_by(d.User.user)
+    if method == 'by_user':
+        result = qry.filter(d.User.user == config_dict['user']).first()
+    elif method == 'by_host':
+        result = qry.filter(d.User.hostname == config_dict['host']).first()
+
+    if result is not None:
+        user = ['-u', result.user,
+                '-p', result.password]
+        logging.debug("\n>>>{}\n>>>{}".format(user, result.hostname))
+        return user, result.hostname
+    else:
+        return False
 
 
 def create_cmd(args):
@@ -129,14 +137,33 @@ def create_cmd(args):
     config_list, config_dict = get_config(session, args)
     parameter_list = get_parameters(session)
     geometry = get_geometry(session, config_dict)
-    user = get_user(session, config_dict)
+
+    if (args['host'] is None) and (args['user'] is not None):
+        logging.debug("======>HOST is None")
+        user, host = get_user(session, config_dict, "by_host")
+        config_list.remove(config_dict['user'])
+        # logging.debug("\n>>>{}\n>>>{}".format(user, host))
+    elif (args['user'] is None) and (args['host'] is not None):
+        logging.debug("======>USER is None")
+        user, host = get_user(session, config_dict, "by_user")
+        config_list.remove(config_dict['host'])
+        # logging.debug("\n>>>{}\n>>>{}".format(user, host))
+        config_list.append(host)
+    elif (args['host'] is not None) and (args['user'] is not None):
+        logging.debug("======>NEITHER is None")
+        pass
+    elif (args['host'] is None) and (args['user'] is None):
+        logging.debug("======>BOTH are None")
+        pass
+    else:
+        logging.debug("======>WTF")
+        raise AttributeError
 
     # Build command
     cmd = []
     cmd.extend(config_list)
     cmd.extend(parameter_list)
     cmd.extend(geometry)
-    cmd.extend(user)
-    # logging.debug("[[ CMD ]]: {}".format(cmd))
+    # logging.debug("[[ CMD LIST ]]: {}".format(cmd))
 
     return cmd

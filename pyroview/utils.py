@@ -47,7 +47,7 @@ def get_cli_args():
     parser.add_argument('-U', '--user', help='Username')
     parser.add_argument('-H', '--host', help='Hostname')
     parser.add_argument('-P', '--password', help='Password')
-    parser.add_argument('-A', '--admin', help='Administrator mode', action='store_true', default=False)
+    parser.add_argument('-N', '--no-admin', help='Administrator mode', action='store_true', default=False)
     parser.add_argument('-D', '--display', help='Geometry of display')
     parser.add_argument('-T', '--title', help='Window title prefix')
     parser.add_argument('-d', '--debug', help='Dry run and display rdesktop command', action='store_true', default=False)
