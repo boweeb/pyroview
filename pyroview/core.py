@@ -21,6 +21,7 @@ logging.basicConfig(level=L.level)
 def get_config(session, args):
     """ Get application configuration """
     result_set = session.query(d.Configuration).all()
+    logging.debug("<< RESULT >>: {}".format(str(result_set)))
     keys = []
     values = []
     for item in result_set:
@@ -67,6 +68,7 @@ def get_config(session, args):
 def get_parameters(session):
     """ Get rdesktop configuration """
     result_set = session.query(d.Parameter).filter(d.Parameter.active).order_by(d.Parameter.id).all()
+    logging.debug("<< RESULT >>: {}".format(result_set))
     keys = []
     values = []
     for item in result_set:
@@ -92,6 +94,7 @@ def get_geometry(session, config_dict):
 
     slug = config_dict['display']
     geometry = session.query(d.Geometry).filter(d.Geometry.slug == slug).first()
+    logging.debug("<< RESULT >>: {}".format(geometry))
 
     cmd_list = ["-g", "{}x{}".format(geometry.width, geometry.height)]
 
@@ -106,20 +109,19 @@ def get_user(session, config_dict, method):
     :return:
     """
 
-    result = None
-    qry = session.query(d.User).order_by(d.User.user)
+    user = None
+    # qry = session.query(d.User).order_by(d.User.user)
+    qry = session.query(d.User)
     if method == 'by_user':
-        result = qry.filter(d.User.user == config_dict['user']).first()
+        user = qry.filter(d.User.user == config_dict['user']).first()
+        logging.debug("<< RESULT >>: {}".format(user))
     elif method == 'by_host':
-        result = qry.filter(d.User.hostname == config_dict['host']).first()
-
-    if result is not None:
-        user = ['-u', result.user,
-                '-p', result.password]
-        logging.debug("\n>>>{}\n>>>{}".format(user, result.hostname))
-        return user, result.hostname
+        user = qry.filter(d.User.hostname == config_dict['host']).first()
+        logging.debug("<< RESULT >>: {}".format(user))
     else:
         return False
+
+    return user
 
 
 def create_cmd(args):
@@ -139,21 +141,25 @@ def create_cmd(args):
     geometry = get_geometry(session, config_dict)
 
     if (args['host'] is None) and (args['user'] is not None):
-        logging.debug("======>HOST is None")
-        user, host = get_user(session, config_dict, "by_host")
+        logging.debug("======>HOST is None; LOOKUP is by_user")
+        user = get_user(session, config_dict, "by_user")
         config_list.remove(config_dict['user'])
+        config_list.remove('-u')
+        config_list.extend(['-u', user.user,
+                            '-p', user.password,
+                            user.hostname])
         # logging.debug("\n>>>{}\n>>>{}".format(user, host))
     elif (args['user'] is None) and (args['host'] is not None):
-        logging.debug("======>USER is None")
-        user, host = get_user(session, config_dict, "by_user")
+        logging.debug("======>USER is None; LOOKUP is by_host")
+        user = get_user(session, config_dict, "by_host")
         config_list.remove(config_dict['host'])
         # logging.debug("\n>>>{}\n>>>{}".format(user, host))
         config_list.append(host)
     elif (args['host'] is not None) and (args['user'] is not None):
-        logging.debug("======>NEITHER is None")
+        logging.debug("======>NEITHER is None; Using NO defaults")
         pass
     elif (args['host'] is None) and (args['user'] is None):
-        logging.debug("======>BOTH are None")
+        logging.debug("======>BOTH are None; Using BOTH defaults")
         pass
     else:
         logging.debug("======>WTF")

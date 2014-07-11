@@ -40,12 +40,9 @@ def safe_init_dict_wrapper(caller, parser, option_array):
     print("Parsing {} option section(s): {}... ".format(len(o), o.keys()))
     for s in o.keys():
         abr = o[s]['abr']
-        # section = 'db_' + abr
-        # section = abr
-        section = s
         for field in o[s]['fields']:
             global_var = abr + '_' + field
-            safe_init(caller, parser, global_var, section, field)
+            safe_init(caller, parser, global_var, s, field)
     print("Done.")
 
 

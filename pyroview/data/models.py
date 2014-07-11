@@ -25,6 +25,19 @@ class Configuration(DB_Base):
     value = Column(String, nullable=False)
     description = Column(String)
 
+    # Pretty print -- set blank str default for nullable fields
+    def __str__(self):
+        p_description = self.description if self.description is not None else ""
+        props = [self.key,
+                 self.value,
+                 p_description]
+        return "Config -- ({}|{}) \"{}\"".format(*props)
+
+    def __repr__(self):
+        props = [repr(self.key),
+                 repr(self.value)]
+        return "<Config: key={}, value={}>".format(*props)
+
 
 class User(DB_Base):
     """ User model
@@ -36,6 +49,16 @@ class User(DB_Base):
     name = Column(String, nullable=False)
     hostname = Column(String)
     active = Column(Boolean, default=True, nullable=False)
+
+    # Pretty print -- set blank str default for nullable fields
+    def __str__(self):
+        return "User -- {}".format(self.user)
+
+    def __repr__(self):
+        props = [repr(self.user),
+                 repr(self.name),
+                 repr(self.active)]
+        return "<User: user={}, name={}, active={}>".format(*props)
 
 
 class Parameter(DB_Base):
@@ -49,6 +72,19 @@ class Parameter(DB_Base):
     description = Column(String, nullable=False)
     active = Column(Boolean, default=True, nullable=False)
 
+    # Pretty print -- set blank str default for nullable fields
+    def __str__(self):
+        p_value = self.value if self.value is not None else "<Empty>"
+        props = [self.parameter,
+                 p_value,
+                 self.description]
+        return "Parameter -- ({}|{}) \"{}\"".format(*props)
+
+    def __repr__(self):
+        props = [repr(self.parameter),
+                 repr(self.value)]
+        return "<Parameter: parameter={}, value={}>".format(*props)
+
 
 class Geometry(DB_Base):
     """ Geometry model
@@ -59,3 +95,17 @@ class Geometry(DB_Base):
     slug = Column(String(1), primary_key=True)
     width = Column(Integer, nullable=False)
     height = Column(Integer, nullable=False)
+
+    # Pretty print -- set blank str default for nullable fields
+    def __str__(self):
+        props = [self.name,
+                 self.slug,
+                 self.width,
+                 self.height]
+        return "Geometry -- {} ({}): {}x{}".format(*props)
+
+    def __repr__(self):
+        props = [repr(self.slug),
+                 repr(self.width),
+                 repr(self.height)]
+        return "<Geometry: slug={}, geometry='{}x{}'>".format(*props)
